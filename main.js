@@ -3,6 +3,7 @@
 const CARROT_SIZE = 80;
 const CARROT_COUNT = 5;
 const BUG_COUNT = 5;
+const GAME_DURATION_SEC = 5; //게임 진행 기간
 
 const field = document.querySelector(".game__field");
 const fieldRect = field.getBoundingClientRect(); //필드의 전체적인 사이즈, 포지션 알 수 있음
@@ -13,7 +14,7 @@ const gameScore = document.querySelector('.game__score');
 
 let started = false;
 let score = 0;
-let timer = undefined;
+let timer = undefined; //clearSetInterval 용
 
 gameBtn.addEventListener('click', ()=>{
   console.log('log');
@@ -49,6 +50,25 @@ function showTimerAndScore(){
   gameScore.style.visibility = "visible";
 }
 
+function startGameTimer(){
+  let remainingTimeSec = GAME_DURATION_SEC;
+  updateTimerText(remainingTimeSec); //초기에 타이머에 보여주는 함수
+
+  timer = setInterval(()=>{
+    if (remainingTimeSec<=0){
+      clearInterval(timer);
+      return;
+    }
+    updateTimerText(--remainingTimeSec);
+
+  }, 1000);
+}
+
+function updateTimerText(time){
+  const minutes = Math.floor(time/60);
+  const seconds = time%60;
+  gameTimer.innerText=`${minutes}:${seconds}`;
+}
 function initGame(){
   field.innerHTML = ''; //초기화 작업
   gameScore.innerText = CARROT_COUNT;
