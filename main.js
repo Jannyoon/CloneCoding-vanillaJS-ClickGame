@@ -11,6 +11,9 @@ const gameBtn = document.querySelector('.game__button');
 const gameTimer = document.querySelector('.game__timer');
 const gameScore = document.querySelector('.game__score');
 
+const popUp = document.querySelector('.pop-up');
+const popUpText = document.querySelector('.pop-up__message');
+const popUpRefresh = document.querySelector('.pop-up__refresh');
 
 let started = false;
 let score = 0;
@@ -35,6 +38,7 @@ function startGame(){ //게임이 시작되면
 }
 
 function stopGame(){
+  stopGameTimer();
 
 }
 
@@ -44,6 +48,9 @@ function showStopButton(){
   icon.classList.remove('fa-play');
 }
 
+function hideGameButton(){
+  gameBtn.style.visibility = 'hidden';
+}
 
 function showTimerAndScore(){
   gameTimer.style.visibility = "visible";
@@ -60,8 +67,13 @@ function startGameTimer(){
       return;
     }
     updateTimerText(--remainingTimeSec);
-
   }, 1000);
+}
+
+function stopGameTimer(){
+  clearInterval(timer);
+  hideGameButton();
+  showPopUpWithText('REPLAY?');
 }
 
 function updateTimerText(time){
@@ -69,6 +81,12 @@ function updateTimerText(time){
   const seconds = time%60;
   gameTimer.innerText=`${minutes}:${seconds}`;
 }
+
+function showPopUpWithText(text){
+  popUpText.innerText = text;
+  popUp.classList.remove('pop-up--hide');
+}
+
 function initGame(){
   field.innerHTML = ''; //초기화 작업
   gameScore.innerText = CARROT_COUNT;
