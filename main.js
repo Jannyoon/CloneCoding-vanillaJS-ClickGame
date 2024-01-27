@@ -15,10 +15,18 @@ const popUp = document.querySelector('.pop-up');
 const popUpText = document.querySelector('.pop-up__message');
 const popUpRefresh = document.querySelector('.pop-up__refresh');
 
+const bgSound = new Audio('./sound/bg.mp3');
+const carrotSound = new Audio('./sound/carrot_pull.mp3');
+const bugSound = new Audio('./sound/bug_pull.mp3');
+const alertSound = new Audio('./sound/alert.wav');
+const gameWinSound = new Audio('./sound/game_win.mp3');
+
+
 let started = false;
 let score = 0;
 let timer = undefined; //clearSetInterval 용
 
+field.addEventListener('click', onFieldClick);
 gameBtn.addEventListener('click', ()=>{
   console.log('log');
   if (started){
@@ -27,10 +35,26 @@ gameBtn.addEventListener('click', ()=>{
   else {
     startGame();
   }
-  started = !started;
 })
 
+popUpRefresh.addEventListener('click',()=>{
+  clearInterval(timer);
+  hidePopUp();
+  startGame();
+})
+
+function playSound(sound){
+  sound.currentTime = 0;
+  sound.play();
+}
+
+function stopSound(sound){
+  sound.pause();
+}
+
 function startGame(){ //게임이 시작되면
+  started = true;
+  playSound(bgSound);
   initGame(); // 필드에 사물들 배치 
   showStopButton(); //정지 버튼으로 바뀌어야 함
   showTimerAndScore(); // 타이머와 점수 버튼 다시 보여줌
@@ -38,12 +62,28 @@ function startGame(){ //게임이 시작되면
 }
 
 function stopGame(){
+  started = false;
+  stopSound(bgSound);
+  score === CARROT_COUNT ? playSound(gameWinSound) : playSound(alertSound);
   stopGameTimer();
+  hideGameButton();
+  showPopUpWithText('replay')
+}
+
+
+
+function finishGame(win){
+  started = false;
+  stopSound(bgSound);
+  score === CARROT_COUNT ? playSound(gameWinSound) : playSound(alertSound);
+  hideGameButton();
+  showPopUpWithText(win ? 'YOU WON' : 'YOU LOST')
 
 }
 
 function showStopButton(){
-  const icon = gameBtn.querySelector(".fa-play");
+  gameBtn.style.visibility = "visible";
+  const icon = gameBtn.querySelector(".fa-solid");
   icon.classList.add('fa-stop');
   icon.classList.remove('fa-play');
 }
@@ -64,6 +104,7 @@ function startGameTimer(){
   timer = setInterval(()=>{
     if (remainingTimeSec<=0){
       clearInterval(timer);
+      finishGame(score===CARROT_COUNT)
       return;
     }
     updateTimerText(--remainingTimeSec);
@@ -72,8 +113,6 @@ function startGameTimer(){
 
 function stopGameTimer(){
   clearInterval(timer);
-  hideGameButton();
-  showPopUpWithText('REPLAY?');
 }
 
 function updateTimerText(time){
@@ -87,14 +126,44 @@ function showPopUpWithText(text){
   popUp.classList.remove('pop-up--hide');
 }
 
+function hidePopUp(){
+  popUp.classList.add('pop-up--hide');
+}
+
 function initGame(){
   field.innerHTML = ''; //초기화 작업
+  score = 0;
   gameScore.innerText = CARROT_COUNT;
   //벌레와 당근을 생성한 뒤 field에 추가해줌
   addItem('carrot', CARROT_COUNT, 'img/carrot.png')
   addItem('bug', BUG_COUNT, 'img/bug.png');
 }
 
+function onFieldClick(event){
+  if (!started) return;
+
+  const target = event.target;
+  if (target.matches('.carrot')){
+    console.log("당근!");
+    carrotSound.play();
+    target.remove(); //타겟 없애야 합니다..
+    score++;
+    updateScoreBoard();
+    if (score===CARROT_COUNT){
+      finishGame(true);
+    }
+  }
+  else if (target.matches('.bug')){
+    console.log("벌레!")
+    bugSound.play();
+    stopGameTimer();
+    finishGame(false);
+  }
+
+}
+function updateScoreBoard(){
+  gameScore.innerText = CARROT_COUNT-score;
+}
 //뭐를 추가, 몇 개를 추가, 이미지 경로
 function addItem(className, count, imgPath){
   const x1 = 0;
