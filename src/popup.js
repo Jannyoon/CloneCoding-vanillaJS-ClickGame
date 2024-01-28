@@ -3,7 +3,6 @@
 //사용자에게 데이터를 보여줄 수 있음
 export default class PopUp {
   constructor(){
-
     this.popUp = document.querySelector('.pop-up');
     this.popUpText = document.querySelector('.pop-up__message');
     this.popUpRefresh = document.querySelector('.pop-up__refresh');

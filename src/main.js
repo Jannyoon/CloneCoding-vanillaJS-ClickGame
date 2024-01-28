@@ -1,34 +1,54 @@
 'use strict';
 import PopUp from './popup.js';
+import Field from './field.js';
+import * as sound from './sound.js'
 
-const CARROT_SIZE = 80;
 const CARROT_COUNT = 5;
 const BUG_COUNT = 5;
 const GAME_DURATION_SEC = 5; //게임 진행 기간
 
-const field = document.querySelector(".game__field");
-const fieldRect = field.getBoundingClientRect(); //필드의 전체적인 사이즈, 포지션 알 수 있음
 const gameBtn = document.querySelector('.game__button');
 const gameTimer = document.querySelector('.game__timer');
 const gameScore = document.querySelector('.game__score');
 
-const bgSound = new Audio('./sound/bg.mp3');
-const carrotSound = new Audio('./sound/carrot_pull.mp3');
-const bugSound = new Audio('./sound/bug_pull.mp3');
-const alertSound = new Audio('./sound/alert.wav');
-const gameWinSound = new Audio('./sound/game_win.mp3');
-
-
 let started = false;
 let score = 0;
 let timer = undefined; //clearSetInterval 용
+
 
 const gameFinishBanner = new PopUp();
 gameFinishBanner.setClickListener(()=>{
   startGame();
 });
 
-field.addEventListener('click', onFieldClick);
+const gameField = new Field(CARROT_COUNT, BUG_COUNT);
+gameField.setClickListener(
+  function(item){
+    return onItemClick(item)
+  }
+  )
+
+function onItemClick(item){
+  if (!started) return;
+  if (item === '.carrot'){
+    console.log("당근!");
+    console.log(score);
+    score++;
+    updateScoreBoard();
+    if (score===CARROT_COUNT){
+      finishGame(true);
+    }
+  }
+  else if (item === '.bug'){
+    console.log("벌레!")
+    stopGameTimer();
+    finishGame(false);
+  }
+
+}
+
+
+
 gameBtn.addEventListener('click', ()=>{
   console.log('log');
   if (started){
@@ -39,19 +59,12 @@ gameBtn.addEventListener('click', ()=>{
   }
 })
 
-function playSound(sound){
-  sound.currentTime = 0;
-  sound.play();
-}
 
-function stopSound(sound){
-  sound.pause();
-}
 
 function startGame(){ //게임이 시작되면
   started = true;
   clearInterval(timer);
-  playSound(bgSound);
+  sound.playBg();
   initGame(); // 필드에 사물들 배치 
   showStopButton(); //정지 버튼으로 바뀌어야 함
   showTimerAndScore(); // 타이머와 점수 버튼 다시 보여줌
@@ -60,8 +73,8 @@ function startGame(){ //게임이 시작되면
 
 function stopGame(){
   started = false;
-  stopSound(bgSound);
-  score === CARROT_COUNT ? playSound(gameWinSound) : playSound(alertSound);
+  sound.stopBg();
+  score === CARROT_COUNT ? sound.playWin() : sound.playAlert();
   stopGameTimer();
   hideGameButton();
   gameFinishBanner.showWithText('replay');
@@ -72,8 +85,8 @@ function stopGame(){
 
 function finishGame(win){
   started = false;
-  stopSound(bgSound);
-  score === CARROT_COUNT ? playSound(gameWinSound) : playSound(alertSound);
+  sound.stopBg();
+  score === CARROT_COUNT ? sound.playWin() : sound.playAlert();
   hideGameButton();
   gameFinishBanner.showWithText(win ? 'YOU WON' : 'YOU LOST');
   
@@ -122,58 +135,13 @@ function updateTimerText(time){
 
 
 function initGame(){
-  field.innerHTML = ''; //초기화 작업
   score = 0;
   gameScore.innerText = CARROT_COUNT;
+  gameField.initGame();
   //벌레와 당근을 생성한 뒤 field에 추가해줌
-  addItem('carrot', CARROT_COUNT, 'img/carrot.png')
-  addItem('bug', BUG_COUNT, 'img/bug.png');
 }
 
-function onFieldClick(event){
-  if (!started) return;
-
-  const target = event.target;
-  if (target.matches('.carrot')){
-    console.log("당근!");
-    carrotSound.play();
-    target.remove(); //타겟 없애야 합니다..
-    score++;
-    updateScoreBoard();
-    if (score===CARROT_COUNT){
-      finishGame(true);
-    }
-  }
-  else if (target.matches('.bug')){
-    console.log("벌레!")
-    bugSound.play();
-    stopGameTimer();
-    finishGame(false);
-  }
-
-}
 function updateScoreBoard(){
   gameScore.innerText = CARROT_COUNT-score;
 }
-//뭐를 추가, 몇 개를 추가, 이미지 경로
-function addItem(className, count, imgPath){
-  const x1 = 0;
-  const y1 = 0;
-  const x2 = fieldRect.width - CARROT_SIZE;
-  const y2 = fieldRect.height - CARROT_SIZE;
-  for (let i=0; i<count; i++){
-    const item = document.createElement('img');
-    item.setAttribute('class', className);
-    item.setAttribute('src',imgPath);
-    item.style.position = 'absolute';
-    const x = randomNumber(x1, x2);
-    const y = randomNumber(y1, y2);
-    item.style.left = `${x}px`;
-    item.style.top = `${y}px`;
-    field.appendChild(item);
-  }
-}
 
-function randomNumber(min, max){
-  return (Math.random()*(max-min)+min);
-}
