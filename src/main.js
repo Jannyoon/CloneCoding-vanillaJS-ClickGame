@@ -22,11 +22,7 @@ gameFinishBanner.setClickListener(()=>{
 });
 
 const gameField = new Field(CARROT_COUNT, BUG_COUNT);
-gameField.setClickListener(
-  function(item){
-    return onItemClick(item)
-  }
-  )
+gameField.setClickListener(onItemClick)
 
 function onItemClick(item){
   if (!started) return;

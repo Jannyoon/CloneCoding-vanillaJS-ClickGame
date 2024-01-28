@@ -21,7 +21,7 @@ export default class Field{
   }
   
   setClickListener(onItemClick){
-    this.onItemClick = onItemClick();
+    this.onItemClick = onItemClick;
   }
 
 
@@ -49,7 +49,7 @@ export default class Field{
   }
 
 
-  onClick(event){
+  onClick=(event)=>{
     const target = event.target;
     if (target.matches('.carrot')){
       target.remove(); //타겟 없애야 합니다..
