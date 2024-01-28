@@ -1,4 +1,5 @@
 'use strict';
+import PopUp from './popup.js';
 
 const CARROT_SIZE = 80;
 const CARROT_COUNT = 5;
@@ -11,10 +12,6 @@ const gameBtn = document.querySelector('.game__button');
 const gameTimer = document.querySelector('.game__timer');
 const gameScore = document.querySelector('.game__score');
 
-const popUp = document.querySelector('.pop-up');
-const popUpText = document.querySelector('.pop-up__message');
-const popUpRefresh = document.querySelector('.pop-up__refresh');
-
 const bgSound = new Audio('./sound/bg.mp3');
 const carrotSound = new Audio('./sound/carrot_pull.mp3');
 const bugSound = new Audio('./sound/bug_pull.mp3');
@@ -26,6 +23,11 @@ let started = false;
 let score = 0;
 let timer = undefined; //clearSetInterval 용
 
+const gameFinishBanner = new PopUp();
+gameFinishBanner.setClickListener(()=>{
+  startGame();
+});
+
 field.addEventListener('click', onFieldClick);
 gameBtn.addEventListener('click', ()=>{
   console.log('log');
@@ -35,12 +37,6 @@ gameBtn.addEventListener('click', ()=>{
   else {
     startGame();
   }
-})
-
-popUpRefresh.addEventListener('click',()=>{
-  clearInterval(timer);
-  hidePopUp();
-  startGame();
 })
 
 function playSound(sound){
@@ -54,6 +50,7 @@ function stopSound(sound){
 
 function startGame(){ //게임이 시작되면
   started = true;
+  clearInterval(timer);
   playSound(bgSound);
   initGame(); // 필드에 사물들 배치 
   showStopButton(); //정지 버튼으로 바뀌어야 함
@@ -67,7 +64,8 @@ function stopGame(){
   score === CARROT_COUNT ? playSound(gameWinSound) : playSound(alertSound);
   stopGameTimer();
   hideGameButton();
-  showPopUpWithText('replay')
+  gameFinishBanner.showWithText('replay');
+  
 }
 
 
@@ -77,7 +75,8 @@ function finishGame(win){
   stopSound(bgSound);
   score === CARROT_COUNT ? playSound(gameWinSound) : playSound(alertSound);
   hideGameButton();
-  showPopUpWithText(win ? 'YOU WON' : 'YOU LOST')
+  gameFinishBanner.showWithText(win ? 'YOU WON' : 'YOU LOST');
+  
 
 }
 
@@ -121,14 +120,6 @@ function updateTimerText(time){
   gameTimer.innerText=`${minutes}:${seconds}`;
 }
 
-function showPopUpWithText(text){
-  popUpText.innerText = text;
-  popUp.classList.remove('pop-up--hide');
-}
-
-function hidePopUp(){
-  popUp.classList.add('pop-up--hide');
-}
 
 function initGame(){
   field.innerHTML = ''; //초기화 작업
