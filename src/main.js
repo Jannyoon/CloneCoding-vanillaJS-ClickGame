@@ -1,6 +1,6 @@
 'use strict';
 import PopUp from './popup.js';
-import Game from './game.js';
+import GameBuilder from './game.js';
 
 const CARROT_COUNT = 5;
 const BUG_COUNT = 5;
@@ -8,7 +8,13 @@ const GAME_DURATION_SEC = 5; //게임 진행 기간
 
 
 const gameFinishBanner = new PopUp();
-const game = new Game(GAME_DURATION_SEC, CARROT_COUNT, BUG_COUNT);
+const game = new GameBuilder()
+.withGameDuration(5)
+.withCarrotCount(3)
+.withBugCount(3)
+.build();
+
+//const game = new Game(GAME_DURATION_SEC, CARROT_COUNT, BUG_COUNT);
 gameFinishBanner.setClickListener(()=>{
   game.start();
 });
