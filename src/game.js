@@ -3,8 +3,16 @@
 import * as sound from './sound.js';
 import Field from './field.js';
 
+//타입 보장
+export const Reason = Object.freeze({
+  win : 'win',
+  lose : 'lose',
+  cancel : 'cancel',
+});
+
+
 //Builder Pattern
-export default class GameBuil {
+export default class GameBuilder {
   withGameDuration(duration){
     this.gameDuration = duration;
     return this;
@@ -45,7 +53,6 @@ class Game{
 
     this.gameBtn = document.querySelector('.game__button');    
     this.gameBtn.addEventListener('click', ()=>{
-      console.log('log');
       if (this.started){
         this.stop();
       }
@@ -80,7 +87,7 @@ class Game{
     this.score === this.carrotCount ? sound.playWin() : sound.playAlert();
     this.stopGameTimer();
     this.hideGameButton();
-    this.onGameStop && this.onGameStop('cancel');
+    this.onGameStop && this.onGameStop(Reason.cancel);
   }
   
 
@@ -89,7 +96,7 @@ class Game{
     sound.stopBg();
     win ? sound.playWin() : sound.playAlert();
     this.hideGameButton();
-    this.onGameStop && this.onGameStop(win ? 'win' : 'lose');    
+    this.onGameStop && this.onGameStop(win ? Reason.win : Reason.lose);    
   }
 
 

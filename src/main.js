@@ -1,11 +1,12 @@
 'use strict';
 import PopUp from './popup.js';
 import GameBuilder from './game.js';
-
+import { Reason } from './game.js';
+/*
 const CARROT_COUNT = 5;
 const BUG_COUNT = 5;
 const GAME_DURATION_SEC = 5; //게임 진행 기간
-
+*/
 
 const gameFinishBanner = new PopUp();
 const game = new GameBuilder()
@@ -21,8 +22,8 @@ gameFinishBanner.setClickListener(()=>{
 
 
 game.setGameStopListener((reason)=>{
-  if (reason==="cancel") gameFinishBanner.showWithText('replay');
-  else if (reason === 'win') gameFinishBanner.showWithText('YOU WON');
+  if (reason===Reason.cancel) gameFinishBanner.showWithText('replay');
+  else if (reason===Reason.win) gameFinishBanner.showWithText('YOU WON');
   else gameFinishBanner.showWithText('YOU LOST');
 
 });
